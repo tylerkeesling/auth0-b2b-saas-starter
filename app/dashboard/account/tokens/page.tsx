@@ -1,11 +1,11 @@
 import { Code } from "bright"
+import { jwtDecode } from "jwt-decode"
 
 import { appClient } from "@/lib/auth0"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -16,11 +16,11 @@ export default appClient.withPageAuthRequired(
     const session = await appClient.getSession()
 
     const idToken =
-      session?.idToken && JSON.parse(atob(session.idToken.split(".")[1]))
+      session?.idToken && JSON.stringify(jwtDecode(session.idToken), null, 2)
 
     const accessToken =
       session?.accessToken &&
-      JSON.parse(atob(session.accessToken.split(".")[1]))
+      JSON.stringify(jwtDecode(session.accessToken), null, 2)
 
     return (
       <div className="space-y-2">
@@ -45,7 +45,7 @@ export default appClient.withPageAuthRequired(
                 className="!m-0 !rounded-xl text-sm"
                 lang="json"
               >
-                {JSON.stringify(idToken, null, 2)}
+                {idToken}
               </Code>
             </div>
           </CardContent>
@@ -68,7 +68,7 @@ export default appClient.withPageAuthRequired(
                 className="!m-0 !rounded-xl text-sm"
                 lang="json"
               >
-                {JSON.stringify(accessToken, null, 2)}
+                {accessToken}
               </Code>
             </div>
           </CardContent>
