@@ -11,16 +11,25 @@ import {
 } from "@/components/ui/card"
 import { PageHeader } from "@/components/page-header"
 
+import { RefreshTokenForm } from "./refresh-token-form"
+
+function decodeToken(token: string) {
+  try {
+    const jwtPayloadJson = jwtDecode(token)
+    const stringifiedJson = JSON.stringify(jwtPayloadJson, null, 2)
+    return stringifiedJson
+  } catch (error) {
+    console.error(error)
+    return "The token is opaque or malformed. Please refer to https://community.auth0.com/t/why-is-my-access-token-not-a-jwt-opaque-token/31028"
+  }
+}
+
 export default appClient.withPageAuthRequired(
   async function Profile() {
     const session = await appClient.getSession()
 
-    const idToken =
-      session?.idToken && JSON.stringify(jwtDecode(session.idToken), null, 2)
-
-    const accessToken =
-      session?.accessToken &&
-      JSON.stringify(jwtDecode(session.accessToken), null, 2)
+    const idToken = session?.idToken && decodeToken(session.idToken)
+    const accessToken = session?.accessToken && decodeToken(session.accessToken)
 
     return (
       <div className="space-y-2">
@@ -73,6 +82,8 @@ export default appClient.withPageAuthRequired(
             </div>
           </CardContent>
         </Card>
+
+        <RefreshTokenForm />
       </div>
     )
   },
