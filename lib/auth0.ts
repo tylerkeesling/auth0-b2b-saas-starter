@@ -10,7 +10,7 @@ export const managementClient = new ManagementClient({
 export const onboardingClient = initAuth0({
   clientID: process.env.AUTH0_MANAGEMENT_CLIENT_ID,
   clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET,
-  baseURL: process.env.APP_BASE_URL,
+  // baseURL: process.env.APP_BASE_URL,
   issuerBaseURL: `https://${process.env.NEXT_PUBLIC_AUTH0_DOMAIN}`,
   secret: process.env.SESSION_ENCRYPTION_SECRET,
   routes: {
@@ -22,7 +22,7 @@ export const onboardingClient = initAuth0({
 export const appClient = initAuth0({
   clientID: process.env.AUTH0_CLIENT_ID,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
-  baseURL: process.env.APP_BASE_URL,
+  // baseURL: process.env.APP_BASE_URL,
   issuerBaseURL: `https://${process.env.NEXT_PUBLIC_AUTH0_DOMAIN}`,
   secret: process.env.SESSION_ENCRYPTION_SECRET,
   idpLogout: true,
