@@ -27,6 +27,7 @@
     "@radix-ui/react-switch": "^1.0.3",
     "@sindresorhus/slugify": "^2.2.1",
     "auth0": "^4.7.0",
+    "@vercel/kv": "^2.0.0",
     "bright": "^0.8.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
