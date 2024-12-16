@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator"
 import { SubmitButton } from "@/components/submit-button"
 
 import { createEnrollment, deleteEnrollment } from "./actions"
+import { ToggleMfaForm } from "./toggle-mfa-form"
 
 type MfaEnrollment = {
   name: string
@@ -75,55 +76,60 @@ const factorsMeta: {
 }
 
 function openPopupWindow(popupOptions: IPopupWindow): Window | null {
-  {
-    const dualScreenLeft =
-      window.screenLeft !== undefined ? window.screenLeft : window.screenX
-    const dualScreenTop =
-      window.screenTop !== undefined ? window.screenTop : window.screenY
+  const dualScreenLeft = window.screenLeft ?? window.screenX
+  const dualScreenTop = window.screenTop ?? window.screenY
 
-    const width = window.innerWidth
-      ? window.innerWidth
-      : document.documentElement.clientWidth
-        ? document.documentElement.clientWidth
-        : screen.width
-    const height = window.innerHeight
-      ? window.innerHeight
-      : document.documentElement.clientHeight
-        ? document.documentElement.clientHeight
-        : screen.height
+  const width =
+    window.innerWidth || document.documentElement.clientWidth || screen.width
+  const height =
+    window.innerHeight || document.documentElement.clientHeight || screen.height
 
-    const systemZoom = width / window.screen.availWidth
-    const left = (width - popupOptions.width) / 2 / systemZoom + dualScreenLeft
-    const top = (height - popupOptions.height) / 2 / systemZoom + dualScreenTop
-    const newWindow = window.open(
-      popupOptions.url,
-      popupOptions.title,
-      `scrollbars=${popupOptions.scrollbars ? "yes" : "no"},
-      width=${popupOptions.width / systemZoom},
-      height=${popupOptions.height / systemZoom},
-      top=${top},
-      left=${left}
-      `
-    )
-    newWindow!.opener = null
+  const systemZoom = window.devicePixelRatio || 1
+
+  const defaultWidth = 600
+  const defaultHeight = 400
+
+  const popupWidth = Math.min(popupOptions.width || defaultWidth, width)
+  const popupHeight = Math.min(popupOptions.height || defaultHeight, height)
+
+  const left = (width - popupWidth) / 2 / systemZoom + dualScreenLeft
+  const top = (height - popupHeight) / 2 / systemZoom + dualScreenTop
+
+  const newWindow = window.open(
+    popupOptions.url,
+    popupOptions.title,
+    `scrollbars=${popupOptions.scrollbars ? "yes" : "no"},
+     width=${popupWidth / systemZoom},
+     height=${popupHeight / systemZoom},
+     top=${top},
+     left=${left}`
+  )
+
+  if (newWindow) {
+    newWindow.opener = null
     if (popupOptions.focus) {
-      newWindow!.focus()
+      newWindow.focus()
     }
-    return newWindow
   }
+
+  return newWindow
 }
 
 type MFAEnrollmentProps = {
   factors: MfaEnrollment[]
+  enforceMfa?: boolean
 }
 
-export function MFAEnrollmentForm({ factors }: MFAEnrollmentProps) {
+export function MFAEnrollmentForm({ factors, enforceMfa }: MFAEnrollmentProps) {
   const router = useRouter()
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Multi-Factor Authentication</CardTitle>
+        <CardTitle className="flex justify-between">
+          Multi-Factor Authentication
+          <ToggleMfaForm enforceMfa={enforceMfa} />
+        </CardTitle>
         <CardDescription>
           Manage the MFA enrollments for your account.
         </CardDescription>
@@ -195,9 +201,9 @@ export function MFAEnrollmentForm({ factors }: MFAEnrollmentProps) {
 
                           const enrollmentPopupWindow = openPopupWindow({
                             url: ticketUrl!,
-                            title: "SaaStart MFA Enrollment",
-                            width: 450,
-                            height: 720,
+                            title: "Uphold Wallet MFA Enrollment",
+                            width: 420,
+                            height: 680,
                             scrollbars: true,
                             focus: true,
                           })
