@@ -86,9 +86,8 @@ export function OrganizationSwitcher({
                 <CommandItem
                   key={org.id}
                   onSelect={() => {
-                    router.push(
-                      `/api/auth/login?organization=${org.id}&returnTo=/dashboard`
-                    )
+                    window.location.href = `/api/auth/login?organization=${org.slug}&returnTo=/dashboard`
+
                     setOpen(false)
                   }}
                   className="text-sm"
