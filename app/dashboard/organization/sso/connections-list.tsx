@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   DotsVerticalIcon,
   GearIcon,
@@ -46,7 +47,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { SubmitButton } from "@/components/submit-button"
 
+import { createSSOEnrollemnt } from "./actions"
 import { deleteConnection } from "./oidc/new/actions"
 
 interface Props {
@@ -58,7 +61,57 @@ interface Props {
   }[]
 }
 
+interface IPopupWindow {
+  width: number
+  height: number
+  title: string
+  url: string
+  focus: boolean
+  scrollbars: boolean
+}
+
+function openPopupWindow(popupOptions: IPopupWindow): Window | null {
+  {
+    const dualScreenLeft =
+      window.screenLeft !== undefined ? window.screenLeft : window.screenX
+    const dualScreenTop =
+      window.screenTop !== undefined ? window.screenTop : window.screenY
+
+    const width = window.innerWidth
+      ? window.innerWidth
+      : document.documentElement.clientWidth
+        ? document.documentElement.clientWidth
+        : screen.width
+    const height = window.innerHeight
+      ? window.innerHeight
+      : document.documentElement.clientHeight
+        ? document.documentElement.clientHeight
+        : screen.height
+
+    const systemZoom = width / window.screen.availWidth
+    const left = (width - popupOptions.width) / 2 / systemZoom + dualScreenLeft
+    const top = (height - popupOptions.height) / 2 / systemZoom + dualScreenTop
+    const newWindow = window.open(
+      popupOptions.url,
+      popupOptions.title,
+      `scrollbars=${popupOptions.scrollbars ? "yes" : "no"},
+      width=${popupOptions.width / systemZoom},
+      height=${popupOptions.height / systemZoom},
+      top=${top},
+      left=${left}
+      `
+    )
+    newWindow!.opener = null
+    if (popupOptions.focus) {
+      newWindow!.focus()
+    }
+    return newWindow
+  }
+}
+
 export function ConnectionsList({ connections }: Props) {
+  const router = useRouter()
+
   return (
     <Card>
       <CardHeader>
@@ -187,12 +240,46 @@ export function ConnectionsList({ connections }: Props) {
           </TableBody>
         </Table>
       </CardContent>
-      <CardFooter className="flex justify-end">
+      <CardFooter className="flex justify-end gap-2">
+        <form
+          action={async () => {
+            // @ts-ignore
+            const { error, ticketUrl } = await createSSOEnrollemnt()
+
+            if (error) {
+              toast.error(error)
+              return
+            }
+
+            const enrollmentPopupWindow = openPopupWindow({
+              url: ticketUrl!,
+              title: "SSO Enrollment",
+              width: 1080,
+              height: 768,
+              scrollbars: true,
+              focus: true,
+            })
+
+            const timer = setInterval(async () => {
+              if (enrollmentPopupWindow && enrollmentPopupWindow.closed) {
+                clearInterval(timer)
+                router.refresh()
+              }
+            }, 200)
+          }}
+          className="ml-auto space-y-8"
+        >
+          <SubmitButton variant="outline" className="ml-auto flex gap-2">
+            <PlusIcon className="mr-1 size-4" />
+            Auth0 Self-Service SSO
+          </SubmitButton>
+        </form>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button>
               <PlusIcon className="mr-1 size-4" />
-              Add Connection
+              Or Build Your Own UI
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[160px]">

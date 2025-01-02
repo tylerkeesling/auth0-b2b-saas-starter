@@ -201,7 +201,7 @@ export function MFAEnrollmentForm({ factors, enforceMfa }: MFAEnrollmentProps) {
 
                           const enrollmentPopupWindow = openPopupWindow({
                             url: ticketUrl!,
-                            title: "Uphold Wallet MFA Enrollment",
+                            title: "MFA Enrollment",
                             width: 420,
                             height: 680,
                             scrollbars: true,
